@@ -1,0 +1,53 @@
+name: Build Artifact
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        type: string
+        description: "The repository that must be built."
+        required: true
+      ref:
+        type: string
+        description: "ref to be used on clone branch"
+        required: true
+      command:
+        type: string
+        description: "Command to build the artifact"
+        required: false
+        default: sh ./gradlew shadowJar
+      artifact:
+        type: string
+        description: "Artifact to be extracted"
+        required: true
+    secrets:
+      pat:
+        description: "pat to access private repos"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # sets up java jdk
+      - name: Setup Java JDK
+        uses: actions/setup-java@v2.5.0
+        with:
+          distribution: "adopt"
+          java-version: 16
+
+      # clones repository
+      - uses: actions/checkout@v2
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.pat }}
+
+      # builds using gradle
+      - name: Run a multi-line script
+        run: ${{ inputs.command }}
+
+      # uploads artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ${{ inputs.artifact }}
