@@ -43,9 +43,13 @@ jobs:
           ref: ${{ inputs.ref }}
           token: ${{ secrets.pat }}
 
-      # builds using gradle
-      - name: Run a multi-line script
+      # builds using input command
+      - name: Build command
         run: ${{ inputs.command }}
+
+      # list files
+      - name: List files
+        run: ls
 
       # uploads artifact
       - uses: actions/upload-artifact@v2
